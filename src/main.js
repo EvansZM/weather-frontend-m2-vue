@@ -8,7 +8,7 @@ import App from './App.vue'
 import router from './router'
 
 // Importa los estilos globales si luego usaremos uno propio
-import './assets/main.css'
+import './assets/scss/main.scss'
 
 // Crea la aplicación Vue
 const app = createApp(App)
