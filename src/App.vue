@@ -4,6 +4,7 @@
     <header class="main-header">
       <nav class="navbar navbar-expand-lg navbar-dark main-header">
         <div class="container">
+
           <!-- Marca -->
           <router-link
             to="/"
@@ -28,6 +29,8 @@
           <!-- Menú -->
           <div class="collapse navbar-collapse" id="navbarMain">
             <ul class="navbar-nav ms-auto main-header__nav">
+
+              <!-- HOME -->
               <li class="nav-item">
                 <router-link
                   to="/"
@@ -37,6 +40,7 @@
                 </router-link>
               </li>
 
+              <!-- ACERCA -->
               <li class="nav-item">
                 <router-link
                   to="/acerca"
@@ -45,8 +49,45 @@
                   Acerca de
                 </router-link>
               </li>
+
+              <!-- FAVORITOS: solo si hay sesión -->
+              <li class="nav-item" v-if="isAuthenticated">
+                <router-link
+                  to="/favoritos"
+                  class="nav-link main-header__link"
+                >
+                  Favoritos
+                </router-link>
+              </li>
+
+              <!-- LOGIN: solo si NO hay sesión -->
+              <li class="nav-item" v-if="!isAuthenticated">
+                <router-link
+                  to="/login"
+                  class="nav-link main-header__link"
+                >
+                  Login
+                </router-link>
+              </li>
+
+              <!-- USUARIO LOGUEADO -->
+              <li class="nav-item d-flex align-items-center gap-2" v-else>
+                <span class="nav-link main-header__link mb-0">
+                  Hola, {{ usuario.nombre }}
+                </span>
+
+                <button
+                  @click="cerrarSesion"
+                  class="btn btn-sm btn-primary"
+                  type="button"
+                >
+                  Salir
+                </button>
+              </li>
+
             </ul>
           </div>
+
         </div>
       </nav>
     </header>
@@ -70,7 +111,22 @@
 </template>
 
 <script>
+import { mapGetters, mapActions } from 'vuex'
+
 export default {
-  name: 'App'
+  name: 'App',
+
+  computed: {
+    ...mapGetters(['isAuthenticated', 'usuario'])
+  },
+
+  methods: {
+    ...mapActions(['logout']),
+
+    cerrarSesion() {
+      this.logout()
+      this.$router.push('/login')
+    }
+  }
 }
 </script>

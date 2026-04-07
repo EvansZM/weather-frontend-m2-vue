@@ -1,0 +1,20 @@
+.favoritos {
+  h2 {
+    font-weight: 700;
+  }
+
+  &__card {
+    border-radius: 1rem;
+    overflow: hidden;
+    transition: transform 0.2s ease;
+  }
+
+  &__card:hover {
+    transform: translateY(-4px);
+  }
+
+  &__image {
+    height: 220px;
+    object-fit: cover;
+  }
+}

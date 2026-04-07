@@ -43,7 +43,7 @@
           {{ mensajeEstado }}
         </div>
 
-
+        <!-- BUSCADOR -->
         <section class="home-page__search-section mb-4">
           <div class="home-page__search-box">
             <label for="busqueda-ciudad" class="home-page__search-label fw-semibold mb-2">
@@ -53,15 +53,23 @@
             <div class="home-page__search-input-wrapper">
               <span class="home-page__search-icon">🔍</span>
 
-              <input id="busqueda-ciudad" v-model="busqueda" type="text" class="form-control home-page__search-input"
-                placeholder="Escribe una ciudad, por ejemplo: Arica o Santiago" />
+              <input
+                id="busqueda-ciudad"
+                v-model="busqueda"
+                type="text"
+                class="form-control home-page__search-input"
+                placeholder="Escribe una ciudad, por ejemplo: Arica o Santiago"
+              />
             </div>
 
             <p v-if="busqueda" class="home-page__search-help mt-2 mb-0">
               Mostrando resultados para: <strong>{{ busqueda }}</strong>
             </p>
 
-            <p v-if="!mensajeEstado && lugaresFiltrados.length === 0" class="home-page__search-empty mt-2 mb-0">
+            <p
+              v-if="!mensajeEstado && lugaresFiltrados.length === 0"
+              class="home-page__search-empty mt-2 mb-0"
+            >
               No se encontraron ciudades 😿
             </p>
           </div>
@@ -69,9 +77,17 @@
 
         <!-- GRID DE CARDS -->
         <div class="row g-3">
-          <article v-for="item in lugaresFiltrados" :key="item.id" class="col-12 col-sm-6 col-lg-3">
+          <article
+            v-for="item in lugaresFiltrados"
+            :key="item.id"
+            class="col-12 col-sm-6 col-lg-3"
+          >
             <div class="card place-card h-100">
-              <img :src="item.imagen" class="card-img-top place-card__image" :alt="`Vista de ${item.nombre}`" />
+              <img
+                :src="item.imagen"
+                class="card-img-top place-card__image"
+                :alt="`Vista de ${item.nombre}`"
+              />
 
               <div class="card-body place-card__body">
                 <h2 class="h5 card-title place-card__title mb-1">
@@ -85,7 +101,21 @@
                   </span>
                 </p>
 
-                <router-link :to="`/lugar/${item.slug}`" class="btn btn-primary btn-lg w-100 place-card__button">
+                <!-- BOTÓN TOGGLE DE FAVORITO -->
+                <button
+                  v-if="isAuthenticated"
+                  @click="toggleFavorito(item.nombre)"
+                  class="btn w-100 mb-2"
+                  :class="esFavorito(item.nombre) ? 'btn-danger' : 'btn-outline-danger'"
+                  type="button"
+                >
+                  {{ esFavorito(item.nombre) ? '❤️ Quitar de favoritos' : '🤍 Agregar a favoritos' }}
+                </button>
+
+                <router-link
+                  :to="`/lugar/${item.slug}`"
+                  class="btn btn-primary btn-lg w-100 place-card__button"
+                >
                   Ver detalle
                 </router-link>
               </div>
@@ -104,6 +134,9 @@ import { lugares } from '../data/lugares'
 // Importa la función para consultar clima actual
 import { obtenerClimaActual } from '../services/apiClient'
 
+// Importamos helpers de Vuex
+import { mapGetters, mapActions } from 'vuex'
+
 export default {
   name: 'HomeView',
 
@@ -116,7 +149,29 @@ export default {
     }
   },
 
+  computed: {
+    // Traemos datos desde Vuex
+    ...mapGetters(['isAuthenticated', 'favoritos']),
+
+    // Filtra ciudades según la búsqueda
+    lugaresFiltrados() {
+      if (!this.busqueda) return this.lugaresConClima
+
+      return this.lugaresConClima.filter(lugar =>
+        lugar.nombre.toLowerCase().includes(this.busqueda.toLowerCase())
+      )
+    }
+  },
+
   methods: {
+    // Importamos la action toggle del store
+    ...mapActions(['toggleFavorito']),
+
+    // Devuelve true o false según si la ciudad está en favoritos
+    esFavorito(nombreLugar) {
+      return this.favoritos.includes(nombreLugar)
+    },
+
     // Devuelve la clase del badge según el estado del clima
     obtenerClaseBadge(estado = '') {
       const estadoNormalizado = estado.toLowerCase()
@@ -208,20 +263,8 @@ export default {
     }
   },
 
-  computed: {
-    lugaresFiltrados() {
-      if (!this.busqueda) return this.lugaresConClima
-
-      return this.lugaresConClima.filter(lugar =>
-        lugar.nombre.toLowerCase().includes(this.busqueda.toLowerCase())
-      )
-    }
-  },
-
   mounted() {
     this.cargarLugaresConClima()
   }
-
-
 }
 </script>
