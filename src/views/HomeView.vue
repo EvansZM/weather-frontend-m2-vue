@@ -17,7 +17,7 @@
 
       <!-- INFORMACIÓN -->
       <section class="home-page__info-section mt-3 mb-4">
-        <div class="home-page__info-box">
+        <div class="home-page__info-box home-page__panel">
           <h2 class="home-page__section-title h5 fw-bold mb-2">
             Información climática
           </h2>
@@ -39,27 +39,39 @@
 
       <!-- ESTADO -->
       <section class="home-page__places" aria-label="Listado de ciudades">
-        <div
-          v-if="mensajeEstado"
-          :class="claseEstado"
-          class="mb-3 text-center"
-        >
+        <div v-if="mensajeEstado" :class="claseEstado" class="mb-3 text-center">
           {{ mensajeEstado }}
         </div>
 
+
+        <section class="home-page__search-section mb-4">
+          <div class="home-page__search-box">
+            <label for="busqueda-ciudad" class="home-page__search-label fw-semibold mb-2">
+              Buscar ciudad
+            </label>
+
+            <div class="home-page__search-input-wrapper">
+              <span class="home-page__search-icon">🔍</span>
+
+              <input id="busqueda-ciudad" v-model="busqueda" type="text" class="form-control home-page__search-input"
+                placeholder="Escribe una ciudad, por ejemplo: Arica o Santiago" />
+            </div>
+
+            <p v-if="busqueda" class="home-page__search-help mt-2 mb-0">
+              Mostrando resultados para: <strong>{{ busqueda }}</strong>
+            </p>
+
+            <p v-if="!mensajeEstado && lugaresFiltrados.length === 0" class="home-page__search-empty mt-2 mb-0">
+              No se encontraron ciudades 😿
+            </p>
+          </div>
+        </section>
+
         <!-- GRID DE CARDS -->
         <div class="row g-3">
-          <article
-            v-for="item in lugaresConClima"
-            :key="item.id"
-            class="col-12 col-sm-6 col-lg-3"
-          >
+          <article v-for="item in lugaresFiltrados" :key="item.id" class="col-12 col-sm-6 col-lg-3">
             <div class="card place-card h-100">
-              <img
-                :src="item.imagen"
-                class="card-img-top place-card__image"
-                :alt="`Vista de ${item.nombre}`"
-              />
+              <img :src="item.imagen" class="card-img-top place-card__image" :alt="`Vista de ${item.nombre}`" />
 
               <div class="card-body place-card__body">
                 <h2 class="h5 card-title place-card__title mb-1">
@@ -68,18 +80,12 @@
 
                 <p class="place-card__text mb-2">
                   <span class="fw-bold">{{ item.temperatura }}°C</span>
-                  <span
-                    class="badge ms-1 text-capitalize"
-                    :class="item.claseBadge"
-                  >
+                  <span class="badge ms-1 text-capitalize" :class="item.claseBadge">
                     {{ item.estado }}
                   </span>
                 </p>
 
-                <router-link
-                  :to="`/lugar/${item.slug}`"
-                  class="btn btn-primary btn-lg w-100 place-card__button"
-                >
+                <router-link :to="`/lugar/${item.slug}`" class="btn btn-primary btn-lg w-100 place-card__button">
                   Ver detalle
                 </router-link>
               </div>
@@ -105,7 +111,8 @@ export default {
     return {
       lugaresConClima: [],
       mensajeEstado: '',
-      claseEstado: ''
+      claseEstado: '',
+      busqueda: ''
     }
   },
 
@@ -201,8 +208,20 @@ export default {
     }
   },
 
+  computed: {
+    lugaresFiltrados() {
+      if (!this.busqueda) return this.lugaresConClima
+
+      return this.lugaresConClima.filter(lugar =>
+        lugar.nombre.toLowerCase().includes(this.busqueda.toLowerCase())
+      )
+    }
+  },
+
   mounted() {
     this.cargarLugaresConClima()
   }
+
+
 }
 </script>
